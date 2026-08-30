@@ -164,6 +164,18 @@ def init(args):
         os.mkdir(tools.config.defaults["overlay_rw"])
         os.mkdir(tools.config.defaults["overlay_rw"]+"/system")
         os.mkdir(tools.config.defaults["overlay_rw"]+"/vendor")
+    arm_translation = getattr(args, "arm_translation", None)
+    if arm_translation:
+        if args.images_path in tools.config.defaults["preinstalled_images_paths"]:
+            logging.warning("Skipping ARM translation installation because Waydroid"
+                            " is configured to use preinstalled images.")
+        else:
+            cfg = tools.config.load(args)
+            if cfg["waydroid"]["arch"] in ("x86", "x86_64"):
+                helpers.native_bridge.install(args, arm_translation)
+            else:
+                logging.warning("Skipping ARM translation installation: not needed"
+                                " on {} hosts".format(cfg["waydroid"]["arch"]))
     helpers.drivers.probeAshmemDriver(args)
     helpers.lxc.setup_host_perms(args)
     helpers.lxc.set_lxc_config(args)

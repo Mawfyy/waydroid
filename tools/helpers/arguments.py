@@ -33,6 +33,11 @@ def arguments_init(subparser):
                      help="rom type (options: \"lineage\", \"bliss\" or OTA channel URL; default is LineageOS)")
     ret.add_argument("-s", "--system_type",
                      help="system type (options: VANILLA, FOSS or GAPPS; default is VANILLA)")
+    ret.add_argument("--arm-translation",
+                     choices=["libndk", "libhoudini"],
+                     help="install ARM translation (native bridge) so ARM apps can"
+                          " run on x86/x86_64 hosts during initialization (libndk:"
+                          " AMD/ARM translation support, libhoudini: Intel)")
     ret.add_argument("--client", help="run as user mode, connecting to the remote initializer service", action="store_true")
     return ret
 
@@ -101,6 +106,27 @@ def arguments_prop(subparser):
     set.add_argument('value', help="value of the property to set")
     return ret
 
+def arguments_arm_translation(subparser):
+    ret = subparser.add_parser("arm-translation",
+                               help="manage ARM translation (native bridge) so"
+                                    " ARM apps can run on x86/x86_64 hosts")
+    sub = ret.add_subparsers(title="subaction", dest="subaction")
+    install = sub.add_parser(
+        "install", help="download and install an ARM translation layer")
+    install.add_argument("backend", choices=["libndk", "libhoudini"],
+                         help="translation backend to install (libndk: recommends"
+                              " on AMD, libhoudini: recommends on Intel)")
+    install.add_argument("-a", "--android-version", choices=["11", "13"],
+                         default="13",
+                         help="Android version of the system image"
+                              " (11: Lineage 18.1, 13: Lineage 20; default: 13)")
+    install.add_argument("-s", "--source",
+                         help="path to a local translation archive (zip) to"
+                              " install from instead of downloading")
+    sub.add_parser("remove", help="remove the installed ARM translation layer")
+    sub.add_parser("status", help="show the installed ARM translation backend")
+    return ret
+
 def arguments_fullUI(subparser):
     ret = subparser.add_parser("show-full-ui", help="show android full screen in window")
     return ret
@@ -167,6 +193,7 @@ def arguments():
     arguments_container(sub)
     arguments_app(sub)
     arguments_prop(sub)
+    arguments_arm_translation(sub)
     arguments_fullUI(sub)
     arguments_firstLaunch(sub)
     arguments_shell(sub)

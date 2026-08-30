@@ -108,6 +108,17 @@ def main():
             else:
                 logging.info(
                     "Run waydroid {} -h for usage information.".format(args.action))
+        elif args.action == "arm-translation":
+            actionNeedRoot(args.action)
+            if args.subaction == "install":
+                actions.arm_translation.install(args)
+            elif args.subaction == "remove":
+                actions.arm_translation.remove(args)
+            elif args.subaction == "status":
+                actions.arm_translation.status(args)
+            else:
+                logging.info(
+                    "Run waydroid {} -h for usage information.".format(args.action))
         elif args.action == "shell":
             actionNeedRoot(args.action)
             helpers.lxc.shell(args)
